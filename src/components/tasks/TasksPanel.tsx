@@ -11,7 +11,7 @@ interface TasksPanelProps {
 }
 
 export default function TasksPanel({ selectedDate }: TasksPanelProps) {
-  const { getTasksForDate, addTask, toggleTask } = useTasks();
+  const { getTasksForDate, addTask, toggleTask, editTask, deleteTask } = useTasks();
 
   const dateKey = toDateKey(selectedDate);
   const tasksForDay = getTasksForDate(dateKey);
@@ -22,8 +22,17 @@ export default function TasksPanel({ selectedDate }: TasksPanelProps) {
       <p className="text-xs text-[var(--color-muted)] mb-4">
         {tasksForDay.length} task{tasksForDay.length === 1 ? "" : "s"}
       </p>
-      <TaskInput onAdd={(title) => addTask(dateKey, title)} />
-      <TaskList tasks={tasksForDay} onToggle={(taskId) => toggleTask(dateKey, taskId)} />
+      <TaskInput
+        onAdd={(title, category, priority, dueTime) =>
+          addTask(dateKey, title, category, priority, dueTime)
+        }
+      />
+      <TaskList
+        tasks={tasksForDay}
+        onToggle={(taskId) => toggleTask(dateKey, taskId)}
+        onEdit={(taskId, updates) => editTask(dateKey, taskId, updates)}
+        onDelete={(taskId) => deleteTask(dateKey, taskId)}
+      />
     </Panel>
   );
 }

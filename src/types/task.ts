@@ -1,14 +1,21 @@
+export type TaskCategory = "Study" | "Work" | "Personal" | "Health";
+export type TaskPriority = "High" | "Medium" | "Low";
+
 export interface Task {
   id: string;
   title: string;
   completed: boolean;
+  category: TaskCategory;
+  priority: TaskPriority;
+  dueTime?: string | null;
 }
 
-/** Maps a date key ("YYYY-MM-DD") to that day's list of tasks. */
 export type TasksByDate = Record<string, Task[]>;
 
-export type TaskAction =
-  | { type: "ADD_TASK"; dateKey: string; task: Task }
-  | { type: "TOGGLE_TASK"; dateKey: string; taskId: string }
-  | { type: "DELETE_TASK"; dateKey: string; taskId: string }
-  | { type: "LOAD_TASKS"; tasksByDate: TasksByDate };
+export interface TaskUpdates {
+  title?: string;
+  category?: TaskCategory;
+  priority?: TaskPriority;
+  dueTime?: string | null;
+  completed?: boolean;
+}
