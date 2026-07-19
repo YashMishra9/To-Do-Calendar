@@ -49,7 +49,10 @@ export default function TaskItem({ task, onToggle, onEdit, onDelete }: TaskItemP
 
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter") commitEdit();
-    if (e.key === "Escape") cancelEdit();
+    if (e.key === "Escape") {
+      e.stopPropagation();
+      cancelEdit();
+    }
   }
 
   function handleDelete() {

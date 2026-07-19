@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { forwardRef, useState, FormEvent } from "react";
 import Button from "@/components/ui/Button";
 import CategorySelect from "./CategorySelect";
 import PrioritySelect from "./PrioritySelect";
@@ -10,7 +10,7 @@ interface TaskInputProps {
   onAdd: (title: string, category: TaskCategory, priority: TaskPriority, dueTime?: string) => void;
 }
 
-export default function TaskInput({ onAdd }: TaskInputProps) {
+const TaskInput = forwardRef<HTMLInputElement, TaskInputProps>(function TaskInput({ onAdd }, ref) {
   const [value, setValue] = useState("");
   const [category, setCategory] = useState<TaskCategory>("Work");
   const [priority, setPriority] = useState<TaskPriority>("Medium");
@@ -29,6 +29,7 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
     <form onSubmit={handleSubmit} className="flex flex-col gap-2 mb-4">
       <div className="flex gap-2">
         <input
+          ref={ref}
           type="text"
           value={value}
           onChange={(e) => setValue(e.target.value)}
@@ -50,4 +51,6 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
       </div>
     </form>
   );
-}
+});
+
+export default TaskInput;

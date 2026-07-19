@@ -1,12 +1,9 @@
 import { Task } from "@/types/task";
 import { PRIORITY_ORDER } from "@/lib/priority";
 
-/**
- * Sorts tasks by due time ascending; tasks without a due time are placed
- * after timed tasks. Within each group (and for ties on the same due time),
- * sorts by priority: High → Medium → Low.
- */
-export function sortTasksByDueTime(tasks: Task[]): Task[] {
+export type TaskSortOption = "dueTime" | "priority" | "alphabetical" | "recent";
+
+function sortByDueTime(tasks: Task[]): Task[] {
   const timed = tasks.filter((t) => t.dueTime);
   const untimed = tasks.filter((t) => !t.dueTime);
 
@@ -23,4 +20,22 @@ export function sortTasksByDueTime(tasks: Task[]): Task[] {
   );
 
   return [...sortedTimed, ...sortedUntimed];
+}
+
+/**
+ * Sorts tasks by the given strategy. Assumes tasks arrive in creation order
+ * (oldest first), which is how the API returns them.
+ */
+export function sortTasksBy(tasks: Task[], option: TaskSortOption): Task[] {
+  switch (option) {
+    case "priority":
+      return [...tasks].sort((a, b) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]);
+    case "alphabetical":
+      return [...tasks].sort((a, b) => a.title.localeCompare(b.title));
+    case "recent":
+      return [...tasks].reverse();
+    case "dueTime":
+    default:
+      return sortByDueTime(tasks);
+  }
 }

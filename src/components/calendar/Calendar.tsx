@@ -12,7 +12,12 @@ interface CalendarProps {
 
 export default function Calendar({ selectedDate, onSelectDate }: CalendarProps) {
   const today = new Date();
-  const { currentMonth, days, goToPrevMonth, goToNextMonth } = useCalendarMonth(today);
+  const { currentMonth, days, goToPrevMonth, goToNextMonth, goToToday } = useCalendarMonth(today);
+
+  function handleToday() {
+    goToToday();
+    onSelectDate(today);
+  }
 
   return (
     <Panel className="flex-1">
@@ -20,6 +25,7 @@ export default function Calendar({ selectedDate, onSelectDate }: CalendarProps) 
         currentMonth={currentMonth}
         onPrevMonth={goToPrevMonth}
         onNextMonth={goToNextMonth}
+        onToday={handleToday}
       />
       <CalendarGrid
         days={days}

@@ -9,13 +9,7 @@ interface RawTask extends Task {
 
 interface TasksContextValue {
   tasksByDate: TasksByDate;
-  addTask: (
-    dateKey: string,
-    title: string,
-    category: TaskCategory,
-    priority: TaskPriority,
-    dueTime?: string
-  ) => Promise<void>;
+  addTask: (dateKey: string, title: string, category: TaskCategory, priority: TaskPriority, dueTime?: string) => Promise<void>;
   toggleTask: (dateKey: string, taskId: string) => Promise<void>;
   editTask: (dateKey: string, taskId: string, updates: TaskUpdates) => Promise<void>;
   deleteTask: (dateKey: string, taskId: string) => Promise<void>;
@@ -37,23 +31,18 @@ export function TasksProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetch("/api/tasks")
-      .then((res) => res.json())
+      .then((res) => (res.ok ? res.json() : []))
       .then((data: RawTask[]) => setTasksByDate(groupByDate(data)));
   }, []);
 
   const addTask = useCallback(
-    async (
-      dateKey: string,
-      title: string,
-      category: TaskCategory,
-      priority: TaskPriority,
-      dueTime?: string
-    ) => {
+    async (dateKey: string, title: string, category: TaskCategory, priority: TaskPriority, dueTime?: string) => {
       const res = await fetch("/api/tasks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, category, priority, dueTime, dateKey }),
       });
+      if (!res.ok) return;
       const created: RawTask = await res.json();
       const { dateKey: _omit, ...task } = created;
       setTasksByDate((prev) => ({
@@ -88,23 +77,18 @@ export function TasksProvider({ children }: { children: ReactNode }) {
     [tasksByDate]
   );
 
-  const editTask = useCallback(
-    async (dateKey: string, taskId: string, updates: TaskUpdates) => {
-      setTasksByDate((prev) => ({
-        ...prev,
-        [dateKey]: (prev[dateKey] ?? []).map((t) =>
-          t.id === taskId ? { ...t, ...updates } : t
-        ),
-      }));
+  const editTask = useCallback(async (dateKey: string, taskId: string, updates: TaskUpdates) => {
+    setTasksByDate((prev) => ({
+      ...prev,
+      [dateKey]: (prev[dateKey] ?? []).map((t) => (t.id === taskId ? { ...t, ...updates } : t)),
+    }));
 
-      await fetch(`/api/tasks/${taskId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updates),
-      });
-    },
-    []
-  );
+    await fetch(`/api/tasks/${taskId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updates),
+    });
+  }, []);
 
   const deleteTask = useCallback(async (dateKey: string, taskId: string) => {
     setTasksByDate((prev) => ({

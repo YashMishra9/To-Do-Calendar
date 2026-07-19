@@ -15,6 +15,10 @@ export function useCalendarMonth(initialDate: Date = new Date()) {
 
   const goToPrevMonth = () => setCurrentMonth((prev) => addMonths(prev, -1));
   const goToNextMonth = () => setCurrentMonth((prev) => addMonths(prev, 1));
+  const goToToday = () => {
+    const now = new Date();
+    setCurrentMonth(new Date(now.getFullYear(), now.getMonth(), 1));
+  };
 
-  return { currentMonth, days, goToPrevMonth, goToNextMonth };
+  return { currentMonth, days, goToPrevMonth, goToNextMonth, goToToday };
 }

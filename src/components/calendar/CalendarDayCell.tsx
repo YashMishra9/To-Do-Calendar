@@ -12,6 +12,7 @@ export default function CalendarDayCell({
   return (
     <button
       onClick={() => onSelect(date)}
+      title={taskCount > 0 ? `${taskCount} task${taskCount === 1 ? "" : "s"}` : undefined}
       className={`
         w-full min-h-[48px] sm:min-h-[56px] rounded-lg text-sm sm:text-base
         flex flex-col items-center justify-center gap-1

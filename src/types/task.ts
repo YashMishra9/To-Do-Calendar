@@ -8,6 +8,7 @@ export interface Task {
   category: TaskCategory;
   priority: TaskPriority;
   dueTime?: string | null;
+  completedAt?: string | null;
 }
 
 export type TasksByDate = Record<string, Task[]>;
