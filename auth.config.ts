@@ -3,6 +3,7 @@ import type { NextAuthConfig } from "next-auth";
 const PROTECTED_PATHS = ["/", "/planner", "/settings"];
 
 export const authConfig: NextAuthConfig = {
+  trustHost: true,
   pages: {
     signIn: "/login",
   },

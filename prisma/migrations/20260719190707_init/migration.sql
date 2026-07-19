@@ -1,15 +1,17 @@
 -- CreateTable
 CREATE TABLE "User" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "id" TEXT NOT NULL,
     "name" TEXT,
     "email" TEXT,
-    "emailVerified" DATETIME,
-    "image" TEXT
+    "emailVerified" TIMESTAMP(3),
+    "image" TEXT,
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Account" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "provider" TEXT NOT NULL,
@@ -21,48 +23,42 @@ CREATE TABLE "Account" (
     "scope" TEXT,
     "id_token" TEXT,
     "session_state" TEXT,
-    CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+
+    CONSTRAINT "Account_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Session" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "id" TEXT NOT NULL,
     "sessionToken" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "expires" DATETIME NOT NULL,
-    CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    "expires" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "VerificationToken" (
     "identifier" TEXT NOT NULL,
     "token" TEXT NOT NULL,
-    "expires" DATETIME NOT NULL
+    "expires" TIMESTAMP(3) NOT NULL
 );
 
--- RedefineTables
-PRAGMA defer_foreign_keys=ON;
-PRAGMA foreign_keys=OFF;
-CREATE TABLE "new_Task" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+-- CreateTable
+CREATE TABLE "Task" (
+    "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "completed" BOOLEAN NOT NULL DEFAULT false,
     "category" TEXT NOT NULL,
     "priority" TEXT NOT NULL DEFAULT 'Medium',
     "dueTime" TEXT,
     "dateKey" TEXT NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "completedAt" DATETIME,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "completedAt" TIMESTAMP(3),
     "userId" TEXT,
-    CONSTRAINT "Task_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+
+    CONSTRAINT "Task_pkey" PRIMARY KEY ("id")
 );
-INSERT INTO "new_Task" ("category", "completed", "completedAt", "createdAt", "dateKey", "dueTime", "id", "priority", "title") SELECT "category", "completed", "completedAt", "createdAt", "dateKey", "dueTime", "id", "priority", "title" FROM "Task";
-DROP TABLE "Task";
-ALTER TABLE "new_Task" RENAME TO "Task";
-CREATE INDEX "Task_dateKey_idx" ON "Task"("dateKey");
-CREATE INDEX "Task_userId_idx" ON "Task"("userId");
-PRAGMA foreign_keys=ON;
-PRAGMA defer_foreign_keys=OFF;
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
@@ -78,3 +74,18 @@ CREATE UNIQUE INDEX "VerificationToken_token_key" ON "VerificationToken"("token"
 
 -- CreateIndex
 CREATE UNIQUE INDEX "VerificationToken_identifier_token_key" ON "VerificationToken"("identifier", "token");
+
+-- CreateIndex
+CREATE INDEX "Task_dateKey_idx" ON "Task"("dateKey");
+
+-- CreateIndex
+CREATE INDEX "Task_userId_idx" ON "Task"("userId");
+
+-- AddForeignKey
+ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Task" ADD CONSTRAINT "Task_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

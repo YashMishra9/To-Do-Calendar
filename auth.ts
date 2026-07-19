@@ -7,7 +7,10 @@ import { authConfig } from "./auth.config";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  adapter: PrismaAdapter(prisma),
+  // Type assertion needed: @auth/prisma-adapter's types predate Prisma 7's
+  // newer client generator shape. Same client, same methods at runtime —
+  // this only silences a structural type mismatch between the two libraries.
+  adapter: PrismaAdapter(prisma as Parameters<typeof PrismaAdapter>[0]),
   session: { strategy: "jwt" },
   trustHost: true,
   providers: [
