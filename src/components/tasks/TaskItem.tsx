@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, KeyboardEvent } from "react";
+import { useState, useRef, useEffect, KeyboardEvent, FocusEvent } from "react";
 import { Task, TaskPriority } from "@/types/task";
 import CategoryBadge from "./CategoryBadge";
 import PriorityBadge from "./PriorityBadge";
@@ -34,10 +34,9 @@ export default function TaskItem({ task, onToggle, onEdit, onDelete }: TaskItemP
 
   function commitEdit() {
     const trimmed = draftTitle.trim();
-    const updates: { title?: string; priority?: TaskPriority } = {};
-    if (trimmed && trimmed !== task.title) updates.title = trimmed;
-    if (draftPriority !== task.priority) updates.priority = draftPriority;
-    if (Object.keys(updates).length > 0) onEdit(task.id, updates);
+    if (trimmed && trimmed !== task.title) {
+      onEdit(task.id, { title: trimmed });
+    }
     setIsEditing(false);
   }
 
@@ -52,6 +51,21 @@ export default function TaskItem({ task, onToggle, onEdit, onDelete }: TaskItemP
     if (e.key === "Escape") {
       e.stopPropagation();
       cancelEdit();
+    }
+  }
+
+  function handlePriorityChange(newPriority: TaskPriority) {
+    setDraftPriority(newPriority);
+    if (newPriority !== task.priority) {
+      onEdit(task.id, { priority: newPriority });
+    }
+  }
+
+  // Only commit the title edit when focus leaves the whole editing group
+  // (input + dropdown together) — not when it just moves between them.
+  function handleGroupBlur(e: FocusEvent<HTMLDivElement>) {
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      commitEdit();
     }
   }
 
@@ -79,17 +93,16 @@ export default function TaskItem({ task, onToggle, onEdit, onDelete }: TaskItemP
         }`}
       >
         {isEditing ? (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2" onBlur={handleGroupBlur}>
             <input
               ref={inputRef}
               type="text"
               value={draftTitle}
               onChange={(e) => setDraftTitle(e.target.value)}
-              onBlur={commitEdit}
               onKeyDown={handleKeyDown}
               className="flex-1 text-sm px-1 py-0.5 rounded border border-[var(--color-primary)] focus:outline-none"
             />
-            <PrioritySelect value={draftPriority} onChange={setDraftPriority} />
+            <PrioritySelect value={draftPriority} onChange={handlePriorityChange} />
           </div>
         ) : (
           <span
